@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Droplets, Download, Print, Calendar, Clock, MapPin } from "lucide-react";
+import { Droplets, Download, Printer, Calendar, Clock, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ScheduleDisplayProps {
@@ -57,7 +57,7 @@ const ScheduleDisplay = ({ scheduleData, onBack }: ScheduleDisplayProps) => {
             </div>
             <div className="flex space-x-3">
               <Button variant="outline" onClick={handlePrint} size="sm">
-                <Print className="h-4 w-4 mr-2" />
+                <Printer className="h-4 w-4 mr-2" />
                 Print
               </Button>
               <Button onClick={handleDownload} size="sm" className="bg-green-600 hover:bg-green-700">

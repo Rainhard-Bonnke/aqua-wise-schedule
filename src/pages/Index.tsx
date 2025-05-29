@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, Calendar, Download, Print } from "lucide-react";
+import { Droplets, Calendar, Download, Printer } from "lucide-react";
 import FarmerRegistration from "@/components/FarmerRegistration";
 import ScheduleForm from "@/components/ScheduleForm";
 import ScheduleDisplay from "@/components/ScheduleDisplay";
