@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Droplets, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { dataService } from "@/services/dataService";
+import { dataService, type Farm, type User } from "@/services/dataService";
 
 interface FarmerRegistrationProps {
   onBack: () => void;
@@ -39,22 +39,39 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
     e.preventDefault();
     console.log("Registration data:", formData);
     
-    // Save farmer data
-    const farmData = {
+    // Create farm data that matches the Farm interface
+    const farmData: Farm = {
+      id: Date.now().toString(),
       name: `${formData.name}'s Farm`,
       location: formData.location,
       size: parseFloat(formData.farmSize) || 0,
       soilType: "Mixed", // Default value
       crops: [], // Start with empty crops array
-      farmer: {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        experience: parseInt(formData.experience) || 0
-      }
+      createdAt: new Date().toISOString()
     };
     
-    dataService.addFarm(farmData);
+    // Create user data that matches the User interface
+    const userData: User = {
+      id: Date.now().toString(),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      farms: [farmData.id],
+      preferences: {
+        notifications: {
+          sms: true,
+          email: true,
+          push: true
+        },
+        units: 'metric',
+        language: 'en'
+      },
+      createdAt: new Date().toISOString()
+    };
+    
+    // Save the farm and user data using the correct methods
+    dataService.saveFarm(farmData);
+    dataService.saveUser(userData);
     
     toast({
       title: "Registration Successful!",
