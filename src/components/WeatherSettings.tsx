@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Droplets, ArrowLeft, Cloud, Key, CheckCircle } from "lucide-react";
+import { Droplets, ArrowLeft, Cloud, Key, CheckCircle, Calendar } from "lucide-react";
 import { weatherService, WeatherData } from "@/services/weatherService";
 import { useToast } from "@/hooks/use-toast";
 
