@@ -1,5 +1,7 @@
 
 // Notification service for SMS and email simulation
+import { smsService } from './smsService';
+
 export interface NotificationPreferences {
   sms: boolean;
   email: boolean;
@@ -19,7 +21,12 @@ export interface Notification {
 class NotificationService {
   private notifications: Notification[] = [];
 
-  scheduleIrrigationReminder(farmId: string, scheduledTime: string, cropName: string): void {
+  scheduleIrrigationReminder(
+    farmId: string, 
+    scheduledTime: string, 
+    cropName: string,
+    farmerData?: { name: string; phone: string }
+  ): void {
     const notification: Notification = {
       id: Date.now().toString(),
       type: 'irrigation',
@@ -32,9 +39,24 @@ class NotificationService {
 
     this.notifications.push(notification);
     this.scheduleNotification(notification);
+
+    // Schedule SMS reminder if farmer data is available
+    if (farmerData && farmerData.phone) {
+      smsService.scheduleIrrigationReminder(
+        farmId,
+        farmerData.name,
+        farmerData.phone,
+        cropName,
+        scheduledTime
+      );
+    }
   }
 
-  scheduleWeatherAlert(farmId: string, weatherCondition: string): void {
+  scheduleWeatherAlert(
+    farmId: string, 
+    weatherCondition: string,
+    farmerData?: { name: string; phone: string }
+  ): void {
     const notification: Notification = {
       id: Date.now().toString(),
       type: 'weather',
@@ -47,6 +69,16 @@ class NotificationService {
 
     this.notifications.push(notification);
     this.sendNotification(notification);
+
+    // Send SMS weather alert if farmer data is available
+    if (farmerData && farmerData.phone) {
+      smsService.scheduleWeatherAlert(
+        farmId,
+        farmerData.name,
+        farmerData.phone,
+        weatherCondition
+      );
+    }
   }
 
   private scheduleNotification(notification: Notification): void {

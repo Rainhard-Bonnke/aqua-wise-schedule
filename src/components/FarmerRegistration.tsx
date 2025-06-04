@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Droplets, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { dataService } from "@/services/dataService";
 
 interface FarmerRegistrationProps {
   onBack: () => void;
@@ -37,10 +38,33 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Registration data:", formData);
+    
+    // Save farmer data
+    const farmData = {
+      name: `${formData.name}'s Farm`,
+      location: formData.location,
+      size: parseFloat(formData.farmSize) || 0,
+      soilType: "Mixed", // Default value
+      crops: [], // Start with empty crops array
+      farmer: {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        experience: parseInt(formData.experience) || 0
+      }
+    };
+    
+    dataService.addFarm(farmData);
+    
     toast({
       title: "Registration Successful!",
-      description: "Welcome to AquaWise Scheduler. You can now create irrigation schedules.",
+      description: "Welcome to AquaWise Scheduler. Redirecting to your dashboard...",
     });
+
+    // Redirect to dashboard after 2 seconds
+    setTimeout(() => {
+      onBack(); // This will navigate back to dashboard
+    }, 2000);
   };
 
   const handleInputChange = (field: string, value: string) => {
