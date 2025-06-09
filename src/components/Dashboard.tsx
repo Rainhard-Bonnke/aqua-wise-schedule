@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Droplets, TrendingUp, Calendar, MapPin, Settings, Plus, BarChart3, Bell, Users, FileText } from "lucide-react";
+import { 
+  Droplets, TrendingUp, Calendar, MapPin, Settings, Plus, BarChart3, 
+  Bell, Users, FileText, Calculator, MessageCircle, UserCheck, Activity 
+} from "lucide-react";
 import { dataService, Farm, IrrigationSchedule } from "@/services/dataService";
 import { weatherService } from "@/services/weatherService";
 import { notificationService } from "@/services/notificationService";
@@ -12,6 +15,10 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "./Header";
 import StatsOverview from "./StatsOverview";
 import AdvancedAnalytics from "./AdvancedAnalytics";
+import CostCalculator from "./CostCalculator";
+import CommunitySharing from "./CommunitySharing";
+import ExtensionOfficerDashboard from "./ExtensionOfficerDashboard";
+import SoilMoistureTracker from "./SoilMoistureTracker";
 
 interface DashboardProps {
   onNavigate: (view: string, data?: any) => void;
@@ -108,10 +115,13 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full lg:w-auto grid-cols-4 lg:grid-cols-4">
+          <TabsList className="grid w-full lg:w-auto grid-cols-3 lg:grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="operations">Operations</TabsTrigger>
+            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+            <TabsTrigger value="costs">Costs</TabsTrigger>
+            <TabsTrigger value="community">Community</TabsTrigger>
+            <TabsTrigger value="extension">Extension</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
 
@@ -296,18 +306,26 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
                     <Button 
                       variant="outline" 
                       className="w-full justify-start hover:bg-blue-50 hover:border-blue-200"
-                      onClick={() => onNavigate("farmers")}
+                      onClick={() => setActiveTab("monitoring")}
                     >
-                      <Users className="h-4 w-4 mr-2" />
-                      Manage Farmers
+                      <Activity className="h-4 w-4 mr-2" />
+                      Soil Monitoring
                     </Button>
                     <Button 
                       variant="outline" 
                       className="w-full justify-start hover:bg-purple-50 hover:border-purple-200"
-                      onClick={() => onNavigate("reports")}
+                      onClick={() => setActiveTab("costs")}
                     >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Generate Report
+                      <Calculator className="h-4 w-4 mr-2" />
+                      Cost Calculator
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start hover:bg-orange-50 hover:border-orange-200"
+                      onClick={() => setActiveTab("community")}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Community
                     </Button>
                     <Button 
                       variant="outline" 
@@ -328,13 +346,24 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
             <AdvancedAnalytics />
           </TabsContent>
 
-          {/* Operations Tab */}
-          <TabsContent value="operations">
-            <div className="text-center py-12">
-              <Settings className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Operations Center</h3>
-              <p className="text-gray-600">Real-time operations monitoring coming soon</p>
-            </div>
+          {/* Monitoring Tab */}
+          <TabsContent value="monitoring">
+            <SoilMoistureTracker farmId={farms[0]?.id || 'demo-farm'} />
+          </TabsContent>
+
+          {/* Costs Tab */}
+          <TabsContent value="costs">
+            <CostCalculator farmId={farms[0]?.id || 'demo-farm'} />
+          </TabsContent>
+
+          {/* Community Tab */}
+          <TabsContent value="community">
+            <CommunitySharing />
+          </TabsContent>
+
+          {/* Extension Tab */}
+          <TabsContent value="extension">
+            <ExtensionOfficerDashboard />
           </TabsContent>
 
           {/* Reports Tab */}
