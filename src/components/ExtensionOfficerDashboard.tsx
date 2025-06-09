@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   UserCheck, Users, AlertTriangle, Calendar, MapPin, Phone, 
-  Mail, CheckCircle, Clock, TrendingUp, FileText, Send
+  Mail, CheckCircle, Clock, TrendingUp, FileText, Send, MessageCircle
 } from "lucide-react";
 import { dataService, Farm } from "@/services/dataService";
 import { communityService, CommunityPost } from "@/services/communityService";

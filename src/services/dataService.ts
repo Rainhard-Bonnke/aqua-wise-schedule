@@ -1,4 +1,3 @@
-
 // Data persistence service with local storage
 export interface Farm {
   id: string;
@@ -7,6 +6,7 @@ export interface Farm {
   size: number;
   soilType: string;
   crops: Crop[];
+  farmerName: string;
   createdAt: string;
 }
 
