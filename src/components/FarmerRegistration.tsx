@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Droplets, User, MapPin, Briefcase, CheckCircle, ArrowLeft } from "lucide-react";
+import { Droplets, User as UserIcon, MapPin, Briefcase, CheckCircle, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { dataService, type Farm, type User } from "@/services/dataService";
 
@@ -81,13 +80,23 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
     // Final submission
     console.log("Registration data:", formData);
     
+    // Convert crop strings to Crop objects
+    const crops = formData.cropTypes.map((cropName, index) => ({
+      id: `crop_${Date.now()}_${index}`,
+      name: cropName,
+      plantedDate: new Date().toISOString(),
+      expectedHarvest: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days from now
+      waterRequirement: 'medium' as const,
+      area: parseFloat(formData.farmSize) / formData.cropTypes.length || 1
+    }));
+    
     const farmData: Farm = {
       id: Date.now().toString(),
       name: formData.farmName || `${formData.name}'s Farm`,
       location: formData.location,
       size: parseFloat(formData.farmSize) || 0,
       soilType: formData.soilType || "Mixed",
-      crops: formData.cropTypes,
+      crops: crops,
       createdAt: new Date().toISOString()
     };
     
@@ -139,7 +148,7 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
         return (
           <div className="space-y-6">
             <div className="text-center mb-6">
-              <User className="h-12 w-12 text-green-600 mx-auto mb-3" />
+              <UserIcon className="h-12 w-12 text-green-600 mx-auto mb-3" />
               <h3 className="text-xl font-semibold text-gray-900">Personal Information</h3>
               <p className="text-gray-600">Please provide your basic information</p>
             </div>
