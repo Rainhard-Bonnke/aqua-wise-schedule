@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Droplets, TrendingUp, Calendar, MapPin, Settings, Plus, BarChart3, 
-  Bell, Users, FileText, Calculator, MessageCircle, UserCheck, Activity 
+  Bell, Users, FileText, Calculator, MessageCircle, UserCheck, Activity, Database 
 } from "lucide-react";
 import { dataService, Farm, IrrigationSchedule } from "@/services/dataService";
 import { weatherService } from "@/services/weatherService";
@@ -22,9 +21,11 @@ import SoilMoistureTracker from "./SoilMoistureTracker";
 
 interface DashboardProps {
   onNavigate: (view: string, data?: any) => void;
+  unreadNotifications?: number;
+  onShowNotifications?: () => void;
 }
 
-const Dashboard = ({ onNavigate }: DashboardProps) => {
+const Dashboard = ({ onNavigate, unreadNotifications = 0, onShowNotifications }: DashboardProps) => {
   const { toast } = useToast();
   const [farms, setFarms] = useState<Farm[]>([]);
   const [schedules, setSchedules] = useState<IrrigationSchedule[]>([]);
@@ -110,7 +111,11 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-green-25 to-blue-50">
-      <Header onNavigate={onNavigate} />
+      <Header 
+        onNavigate={onNavigate} 
+        unreadNotifications={unreadNotifications}
+        onShowNotifications={onShowNotifications}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -329,6 +334,14 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
                     </Button>
                     <Button 
                       variant="outline" 
+                      className="w-full justify-start hover:bg-indigo-50 hover:border-indigo-200"
+                      onClick={() => onNavigate("data-management")}
+                    >
+                      <Database className="h-4 w-4 mr-2" />
+                      Data Management
+                    </Button>
+                    <Button 
+                      variant="outline" 
                       className="w-full justify-start hover:bg-gray-50 hover:border-gray-200"
                       onClick={() => onNavigate("weather-settings")}
                     >
@@ -371,7 +384,14 @@ const Dashboard = ({ onNavigate }: DashboardProps) => {
             <div className="text-center py-12">
               <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Reporting Center</h3>
-              <p className="text-gray-600">Advanced reporting features coming soon</p>
+              <p className="text-gray-600 mb-6">Advanced reporting features</p>
+              <Button 
+                onClick={() => onNavigate("data-management")}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <Database className="h-4 w-4 mr-2" />
+                Access Data Management
+              </Button>
             </div>
           </TabsContent>
         </Tabs>
