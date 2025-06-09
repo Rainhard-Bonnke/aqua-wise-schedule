@@ -1,4 +1,3 @@
-
 import { dataService, type Farm, type User } from "@/services/dataService";
 import { FarmerFormData } from "./types";
 
@@ -20,6 +19,7 @@ export const createFarmData = (formData: FarmerFormData): Farm => {
     size: parseFloat(formData.farmSize) || 0,
     soilType: formData.soilType || "Mixed",
     crops: crops,
+    farmerName: formData.name,
     createdAt: new Date().toISOString()
   };
 };
