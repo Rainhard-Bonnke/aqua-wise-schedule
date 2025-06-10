@@ -6,11 +6,14 @@ import WelcomeFarmer from "@/components/WelcomeFarmer";
 import ScheduleForm from "@/components/ScheduleForm";
 import ScheduleDisplay from "@/components/ScheduleDisplay";
 import WeatherSettings from "@/components/WeatherSettings";
+import SettingsPage from "@/components/SettingsPage";
+import ScheduleManagement from "@/components/ScheduleManagement";
+import EnhancedDataExportImport from "@/components/EnhancedDataExportImport";
 import LandingPage from "@/components/LandingPage";
-import DataExportImport from "@/components/DataExportImport";
 import NotificationCenter from "@/components/NotificationCenter";
 import { dataService } from "@/services/dataService";
 import { realTimeNotificationService } from "@/services/realTimeNotificationService";
+import { realTimeWeatherService } from "@/services/realTimeWeatherService";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState("landing");
@@ -33,14 +36,20 @@ const Index = () => {
       setUnreadCount(unread);
     });
 
-    // Generate some demo notifications for demonstration
+    // Start real-time weather updates if farms exist
     if (farms.length > 0) {
+      realTimeWeatherService.startRealTimeUpdates();
+      
+      // Generate some demo notifications for demonstration
       setTimeout(() => {
         realTimeNotificationService.generateDemoNotifications();
       }, 2000);
     }
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      realTimeWeatherService.stopRealTimeUpdates();
+    };
   }, []);
 
   const handleNavigation = (view: string, data?: any) => {
@@ -113,11 +122,22 @@ const Index = () => {
     case "weather-settings":
       return <WeatherSettings onBack={handleBack} />;
     
+    case "settings":
+      return <SettingsPage onBack={handleBack} />;
+    
+    case "schedules":
+      return (
+        <ScheduleManagement 
+          onBack={handleBack} 
+          onCreateSchedule={() => setCurrentView("create-schedule")}
+        />
+      );
+    
     case "add-farm":
       return <FarmerRegistration onBack={handleBack} />;
 
     case "data-management":
-      return <DataExportImport onBack={handleBack} />;
+      return <EnhancedDataExportImport onBack={handleBack} />;
     
     case "dashboard":
     default:
