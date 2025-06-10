@@ -93,18 +93,41 @@ class NotificationService {
     }
   }
 
-  private sendNotification(notification: Notification): void {
+  // Made public and updated signature to match usage in realTimeNotificationService
+  sendNotification(title: string, message: string): void;
+  sendNotification(notification: Notification): void;
+  sendNotification(titleOrNotification: string | Notification, message?: string): void {
+    let notificationObj: Notification;
+    
+    if (typeof titleOrNotification === 'string') {
+      // Handle the case where it's called with title and message
+      console.log(`📱 SMS/Email Notification: ${titleOrNotification}`);
+      console.log(`📧 Message: ${message}`);
+      
+      // Show browser notification if permission granted
+      if (Notification.permission === 'granted') {
+        new Notification(titleOrNotification, {
+          body: message,
+          icon: '/favicon.ico'
+        });
+      }
+      return;
+    } else {
+      // Handle the case where it's called with notification object
+      notificationObj = titleOrNotification;
+    }
+
     // Simulate sending notification
-    console.log(`📱 SMS/Email Notification: ${notification.title}`);
-    console.log(`📧 Message: ${notification.message}`);
+    console.log(`📱 SMS/Email Notification: ${notificationObj.title}`);
+    console.log(`📧 Message: ${notificationObj.message}`);
     
     // In a real app, this would integrate with Twilio, SendGrid, etc.
-    notification.sent = true;
+    notificationObj.sent = true;
     
     // Show browser notification if permission granted
     if (Notification.permission === 'granted') {
-      new Notification(notification.title, {
-        body: notification.message,
+      new Notification(notificationObj.title, {
+        body: notificationObj.message,
         icon: '/favicon.ico'
       });
     }

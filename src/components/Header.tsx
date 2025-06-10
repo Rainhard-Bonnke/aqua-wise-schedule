@@ -17,11 +17,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 interface HeaderProps {
   onNavigate: (view: string) => void;
   currentUser?: string;
+  unreadNotifications?: number;
+  onShowNotifications?: () => void;
 }
 
-const Header = ({ onNavigate, currentUser = "Admin User" }: HeaderProps) => {
-  const [notifications] = useState(3);
-
+const Header = ({ onNavigate, currentUser = "Admin User", unreadNotifications = 0, onShowNotifications }: HeaderProps) => {
   const navigationItems = [
     { label: "Dashboard", value: "dashboard" },
     { label: "Farms", value: "farms" },
@@ -81,16 +81,16 @@ const Header = ({ onNavigate, currentUser = "Admin User" }: HeaderProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onNavigate("notifications")}
+              onClick={onShowNotifications}
               className="relative"
             >
               <Bell className="h-5 w-5" />
-              {notifications > 0 && (
+              {unreadNotifications > 0 && (
                 <Badge 
                   variant="destructive" 
                   className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs"
                 >
-                  {notifications}
+                  {unreadNotifications}
                 </Badge>
               )}
             </Button>
