@@ -37,6 +37,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ unreadNotifications = 0 }) => {
   const { user, profile, signOut } = useAuth();
   const [currentView, setCurrentView] = useState('dashboard');
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const navigationItems = [
     { label: "Dashboard", value: "dashboard", icon: Home },
@@ -64,29 +65,27 @@ const MainLayout: React.FC<MainLayoutProps> = ({ unreadNotifications = 0 }) => {
   const renderContent = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentView} />;
       case 'farms':
-        return <FarmerRegistration />;
+        return <FarmerRegistration onBack={() => setCurrentView('dashboard')} />;
       case 'schedules':
-        return <ScheduleManagement />;
+        return <ScheduleManagement onBack={() => setCurrentView('dashboard')} onCreateSchedule={() => {}} />;
       case 'analytics':
         return <AdvancedAnalytics />;
       case 'data-management':
-        return <DataExportImport />;
+        return <DataExportImport onBack={() => setCurrentView('dashboard')} />;
       case 'costs':
-        return <CostCalculator />;
+        return <CostCalculator farmId="default-farm" />;
       case 'community':
         return <CommunitySharing />;
       case 'extension':
         return <ExtensionOfficerDashboard />;
       case 'monitoring':
-        return <SoilMoistureTracker />;
+        return <SoilMoistureTracker farmId="default-farm" />;
       case 'settings':
-        return <SettingsPage />;
-      case 'notifications':
-        return <NotificationCenter />;
+        return <SettingsPage onBack={() => setCurrentView('dashboard')} />;
       default:
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentView} />;
     }
   };
 
@@ -131,7 +130,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ unreadNotifications = 0 }) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setCurrentView('notifications')}
+              onClick={() => setShowNotifications(true)}
               className="relative"
             >
               <Bell className="h-4 w-4" />
@@ -247,6 +246,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ unreadNotifications = 0 }) => {
           {renderContent()}
         </div>
       </main>
+
+      {/* Notification Center */}
+      <NotificationCenter 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
     </div>
   );
 };
