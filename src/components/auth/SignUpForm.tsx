@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -11,44 +12,24 @@ interface SignUpFormProps {
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [role, setRole] = useState<'farmer' | 'extension_officer' | 'admin'>('farmer');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!email || !password || !name) {
       toast.error('Please fill in all required fields');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
       return;
     }
 
     setIsLoading(true);
     try {
-      await signUp(formData.email, formData.password, formData.name, formData.phone);
+      await signUp(email, password, name, phone);
       toast.success('Account created successfully! Please check your email to verify your account.');
     } catch (error: any) {
       toast.error(error.message || 'Failed to create account');
@@ -60,61 +41,59 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Create Account</CardTitle>
+        <CardTitle>Join AquaWise</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Input
               type="text"
-              name="name"
-              placeholder="Full Name *"
-              value={formData.name}
-              onChange={handleChange}
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
           <div>
             <Input
               type="email"
-              name="email"
-              placeholder="Email *"
-              value={formData.email}
-              onChange={handleChange}
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div>
             <Input
               type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleChange}
+              placeholder="Phone Number (optional)"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
+          </div>
+          <div>
+            <Select value={role} onValueChange={(value: 'farmer' | 'extension_officer' | 'admin') => setRole(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="farmer">Farmer</SelectItem>
+                <SelectItem value="extension_officer">Extension Officer</SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Input
               type="password"
-              name="password"
-              placeholder="Password *"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password *"
-              value={formData.confirmPassword}
-              onChange={handleChange}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating Account...' : 'Sign Up'}
+            {isLoading ? 'Creating account...' : 'Sign Up'}
           </Button>
           <div className="text-center">
             <button
