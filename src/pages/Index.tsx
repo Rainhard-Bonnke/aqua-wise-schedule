@@ -1,5 +1,7 @@
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import AuthPage from "@/components/auth/AuthPage";
 import Dashboard from "@/components/Dashboard";
 import FarmerRegistration from "@/components/FarmerRegistration";
 import WelcomeFarmer from "@/components/WelcomeFarmer";
@@ -11,23 +13,47 @@ import ScheduleManagement from "@/components/ScheduleManagement";
 import EnhancedDataExportImport from "@/components/EnhancedDataExportImport";
 import LandingPage from "@/components/LandingPage";
 import NotificationCenter from "@/components/NotificationCenter";
-import { dataService } from "@/services/dataService";
+import { supabaseDataService } from "@/services/supabaseDataService";
 import { realTimeNotificationService } from "@/services/realTimeNotificationService";
 import { realTimeWeatherService } from "@/services/realTimeWeatherService";
 
 const Index = () => {
+  const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState("landing");
   const [scheduleData, setScheduleData] = useState(null);
   const [viewData, setViewData] = useState(null);
   const [newFarmerData, setNewFarmerData] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [hasCheckedFarms, setHasCheckedFarms] = useState(false);
 
   useEffect(() => {
-    // Check if user has any data (farms) to determine if they should see landing page
-    const farms = dataService.getFarms();
-    if (farms.length > 0) {
-      setCurrentView("dashboard");
+    if (loading) return;
+
+    if (!user) {
+      setCurrentView("landing");
+      return;
+    }
+
+    // Check if user has any farms to determine initial view
+    const checkUserFarms = async () => {
+      try {
+        const farms = await supabaseDataService.getFarms();
+        if (farms.length > 0) {
+          setCurrentView("dashboard");
+        } else {
+          setCurrentView("register");
+        }
+        setHasCheckedFarms(true);
+      } catch (error) {
+        console.error("Error checking farms:", error);
+        setCurrentView("register");
+        setHasCheckedFarms(true);
+      }
+    };
+
+    if (!hasCheckedFarms) {
+      checkUserFarms();
     }
 
     // Subscribe to notification updates
@@ -36,21 +62,44 @@ const Index = () => {
       setUnreadCount(unread);
     });
 
-    // Start real-time weather updates if farms exist
-    if (farms.length > 0) {
-      realTimeWeatherService.startRealTimeUpdates();
-      
-      // Generate some demo notifications for demonstration
-      setTimeout(() => {
-        realTimeNotificationService.generateDemoNotifications();
-      }, 2000);
-    }
+    // Start real-time weather updates if user is authenticated
+    realTimeWeatherService.startRealTimeUpdates();
+    
+    // Generate some demo notifications for demonstration
+    setTimeout(() => {
+      realTimeNotificationService.generateDemoNotifications();
+    }, 2000);
 
     return () => {
       unsubscribe();
       realTimeWeatherService.stopRealTimeUpdates();
     };
-  }, []);
+  }, [user, loading, hasCheckedFarms]);
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication page if user is not logged in
+  if (!user) {
+    if (currentView === "landing") {
+      return (
+        <LandingPage 
+          onGetStarted={() => setCurrentView("auth")}
+          onLogin={() => setCurrentView("auth")}
+        />
+      );
+    }
+    return <AuthPage />;
+  }
 
   const handleNavigation = (view: string, data?: any) => {
     setCurrentView(view);
@@ -77,26 +126,10 @@ const Index = () => {
     setCurrentView("dashboard");
   };
 
-  const handleGetStarted = () => {
-    setCurrentView("register");
-  };
-
-  const handleLogin = () => {
-    setCurrentView("dashboard");
-  };
-
   // Render based on current view
   switch (currentView) {
-    case "landing":
-      return (
-        <LandingPage 
-          onGetStarted={handleGetStarted}
-          onLogin={handleLogin}
-        />
-      );
-
     case "register":
-      return <FarmerRegistration onBack={() => setCurrentView("landing")} />;
+      return <FarmerRegistration onBack={() => setCurrentView("dashboard")} />;
     
     case "welcome-farmer":
       return newFarmerData ? (

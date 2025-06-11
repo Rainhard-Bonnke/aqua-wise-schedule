@@ -1,0 +1,197 @@
+
+import { supabase } from "@/integrations/supabase/client";
+
+export interface SupabaseFarm {
+  id: string;
+  name: string;
+  location: string;
+  size: number;
+  soil_type: 'clay' | 'sandy' | 'loamy' | 'silty';
+  farmer_id: string;
+  created_at: string;
+}
+
+export interface SupabaseCrop {
+  id: string;
+  name: string;
+  farm_id: string;
+  planted_date: string;
+  expected_harvest: string;
+  water_requirement: 'low' | 'medium' | 'high';
+  area: number;
+  created_at: string;
+}
+
+export interface SupabaseProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  created_at: string;
+}
+
+export const supabaseDataService = {
+  // Profile operations
+  async getProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateProfile(updates: Partial<SupabaseProfile>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Farm operations
+  async getFarms() {
+    const { data, error } = await supabase
+      .from('farms')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async createFarm(farm: Omit<SupabaseFarm, 'id' | 'farmer_id' | 'created_at'>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('farms')
+      .insert({
+        ...farm,
+        farmer_id: user.id
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateFarm(id: string, updates: Partial<SupabaseFarm>) {
+    const { data, error } = await supabase
+      .from('farms')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteFarm(id: string) {
+    const { error } = await supabase
+      .from('farms')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  // Crop operations
+  async getCrops(farmId?: string) {
+    let query = supabase
+      .from('crops')
+      .select('*');
+
+    if (farmId) {
+      query = query.eq('farm_id', farmId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async createCrop(crop: Omit<SupabaseCrop, 'id' | 'created_at'>) {
+    const { data, error } = await supabase
+      .from('crops')
+      .insert(crop)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateCrop(id: string, updates: Partial<SupabaseCrop>) {
+    const { data, error } = await supabase
+      .from('crops')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteCrop(id: string) {
+    const error = await supabase
+      .from('crops')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  // Authentication helpers
+  async signUp(email: string, password: string, name: string, phone?: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          phone
+        }
+      }
+    });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  },
+
+  async getCurrentUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  }
+};
