@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   profile: SupabaseProfile | null;
   loading: boolean;
-  signUp: (email: string, password: string, name: string, phone?: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, phone?: string, role?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<SupabaseProfile>) => Promise<void>;
@@ -67,10 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, phone?: string) => {
+  const signUp = async (email: string, password: string, name: string, phone?: string, role?: string) => {
     setLoading(true);
     try {
-      await supabaseDataService.signUp(email, password, name, phone);
+      await supabaseDataService.signUp(email, password, name, phone, role);
     } catch (error) {
       setLoading(false);
       throw error;

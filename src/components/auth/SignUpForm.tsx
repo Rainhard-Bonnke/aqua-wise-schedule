@@ -29,7 +29,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
 
     setIsLoading(true);
     try {
-      await signUp(email, password, name, phone);
+      await signUp(email, password, name, phone, role);
       toast.success('Account created successfully! Please check your email to verify your account.');
     } catch (error: any) {
       toast.error(error.message || 'Failed to create account');

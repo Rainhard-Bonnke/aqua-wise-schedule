@@ -159,14 +159,15 @@ export const supabaseDataService = {
   },
 
   // Authentication helpers
-  async signUp(email: string, password: string, name: string, phone?: string) {
+  async signUp(email: string, password: string, name: string, phone?: string, role?: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
-          phone
+          phone,
+          role: role || 'farmer'
         }
       }
     });
