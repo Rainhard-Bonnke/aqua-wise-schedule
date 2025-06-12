@@ -2,7 +2,7 @@
 import React from 'react';
 import Dashboard from '../Dashboard';
 import FarmerRegistration from '../FarmerRegistration';
-import ScheduleManagement from '../ScheduleManagement';
+import WorkingScheduleManagement from '../WorkingScheduleManagement';
 import AdvancedAnalytics from '../AdvancedAnalytics';
 import DataExportImport from '../DataExportImport';
 import CostCalculator from '../CostCalculator';
@@ -27,7 +27,7 @@ const MainContent: React.FC<MainContentProps> = ({
       case 'farms':
         return <FarmerRegistration onBack={() => onNavigate('dashboard')} />;
       case 'schedules':
-        return <ScheduleManagement onBack={() => onNavigate('dashboard')} onCreateSchedule={() => {}} />;
+        return <WorkingScheduleManagement onBack={() => onNavigate('dashboard')} />;
       case 'analytics':
         return <AdvancedAnalytics />;
       case 'data-management':
