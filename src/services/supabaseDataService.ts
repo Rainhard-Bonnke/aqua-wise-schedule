@@ -61,7 +61,7 @@ export const supabaseDataService = {
     return data;
   },
 
-  // Farm operations
+  // Farm operations - now accessed through extension officer/admin interface
   async getFarms() {
     const { data, error } = await supabase
       .from('farms')
@@ -72,16 +72,10 @@ export const supabaseDataService = {
     return data || [];
   },
 
-  async createFarm(farm: Omit<SupabaseFarm, 'id' | 'farmer_id' | 'created_at'>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
+  async createFarm(farm: Omit<SupabaseFarm, 'id' | 'created_at'>) {
     const { data, error } = await supabase
       .from('farms')
-      .insert({
-        ...farm,
-        farmer_id: user.id
-      })
+      .insert(farm)
       .select()
       .single();
 
@@ -167,7 +161,7 @@ export const supabaseDataService = {
         data: {
           name,
           phone,
-          role: role || 'farmer'
+          role: role || 'extension_officer'
         }
       }
     });

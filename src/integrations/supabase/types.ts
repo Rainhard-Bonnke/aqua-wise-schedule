@@ -301,7 +301,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "farmer" | "extension_officer"
+      app_role: "extension_officer" | "admin"
       irrigation_method: "drip" | "sprinkler" | "flood" | "manual"
       soil_type: "clay" | "sandy" | "loamy" | "silty"
       water_requirement: "low" | "medium" | "high"
@@ -420,7 +420,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "farmer", "extension_officer"],
+      app_role: ["extension_officer", "admin"],
       irrigation_method: ["drip", "sprinkler", "flood", "manual"],
       soil_type: ["clay", "sandy", "loamy", "silty"],
       water_requirement: ["low", "medium", "high"],

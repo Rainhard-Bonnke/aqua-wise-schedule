@@ -16,7 +16,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState<'farmer' | 'extension_officer' | 'admin'>('farmer');
+  const [role, setRole] = useState<'extension_officer' | 'admin'>('extension_officer');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
 
@@ -41,7 +41,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Join AquaWise</CardTitle>
+        <CardTitle>Join AquaWise System</CardTitle>
+        <p className="text-sm text-gray-600">Extension Officer and Administrator Access Only</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -72,12 +73,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSwitchToLogin }) => {
             />
           </div>
           <div>
-            <Select value={role} onValueChange={(value: 'farmer' | 'extension_officer' | 'admin') => setRole(value)}>
+            <Select value={role} onValueChange={(value: 'extension_officer' | 'admin') => setRole(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="farmer">Farmer</SelectItem>
                 <SelectItem value="extension_officer">Extension Officer</SelectItem>
                 <SelectItem value="admin">Administrator</SelectItem>
               </SelectContent>

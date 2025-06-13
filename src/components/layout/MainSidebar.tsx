@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
-  Home, MapPin, Users, Calendar, BarChart3, 
+  Home, Users, Calendar, BarChart3, 
   Settings, Calculator, MessageCircle, Activity, 
   Database, FileText, X
 } from 'lucide-react';
@@ -23,7 +23,6 @@ const MainSidebar: React.FC<MainSidebarProps> = ({
 }) => {
   const navigationItems = [
     { label: "Dashboard", value: "dashboard", icon: Home },
-    { label: "Farms", value: "farms", icon: MapPin },
     { label: "Farmers", value: "farmers", icon: Users },
     { label: "Schedules", value: "schedules", icon: Calendar },
     { label: "Analytics", value: "analytics", icon: BarChart3 },

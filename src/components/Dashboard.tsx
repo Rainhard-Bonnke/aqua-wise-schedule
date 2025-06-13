@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Droplets, TrendingUp, Calendar, MapPin, Plus, Users, 
+  Droplets, TrendingUp, Calendar, Users, Plus, 
   Bell, Activity, Calculator, MessageCircle
 } from "lucide-react";
 import { dataService, Farm, IrrigationSchedule } from "@/services/dataService";
@@ -60,16 +60,16 @@ const Dashboard = ({ onNavigate, unreadNotifications = 0 }: DashboardProps) => {
 
   const statsData = [
     {
-      title: "Total Farmers",
+      title: "Registered Farmers",
       value: "836",
       icon: Users,
       trend: "+12%",
       color: "text-blue-600"
     },
     {
-      title: "Active Farms",
+      title: "Managed Farms",
       value: farms.length.toString(),
-      icon: MapPin,
+      icon: Activity,
       trend: "+5%",
       color: "text-green-600"
     },
@@ -81,7 +81,7 @@ const Dashboard = ({ onNavigate, unreadNotifications = 0 }: DashboardProps) => {
       color: "text-cyan-600"
     },
     {
-      title: "Efficiency",
+      title: "System Efficiency",
       value: "88.3%",
       icon: TrendingUp,
       trend: "+2.1%",
@@ -105,16 +105,23 @@ const Dashboard = ({ onNavigate, unreadNotifications = 0 }: DashboardProps) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Welcome to your irrigation management center</p>
+          <h1 className="text-2xl font-bold text-gray-900">System Dashboard</h1>
+          <p className="text-gray-600">Extension Officer and Administrator Control Center</p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        <div className="mt-4 sm:mt-0 flex gap-2">
           <Button 
-            onClick={() => onNavigate("farms")}
+            onClick={() => onNavigate("farmers")}
             className="bg-green-600 hover:bg-green-700"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Farm
+            Add Farmer
+          </Button>
+          <Button 
+            onClick={() => onNavigate("schedules")}
+            variant="outline"
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Manage Schedules
           </Button>
         </div>
       </div>
@@ -130,11 +137,30 @@ const Dashboard = ({ onNavigate, unreadNotifications = 0 }: DashboardProps) => {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left Column - Farms */}
         <div className="lg:col-span-2">
-          <FarmsList 
-            farms={farms}
-            onAddFarm={() => onNavigate("farms")}
-            onViewFarm={(farm) => onNavigate("farm-detail", farm)}
-          />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-green-600" />
+                Farmer Management
+              </CardTitle>
+              <CardDescription>
+                Manage farmers and their irrigation systems
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Farmer Registration System</h3>
+                <p className="text-gray-600 mb-4">
+                  Register new farmers and manage their farm profiles through the extension officer interface.
+                </p>
+                <Button onClick={() => onNavigate("farmers")} className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Register New Farmer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right Column - Sidebar */}

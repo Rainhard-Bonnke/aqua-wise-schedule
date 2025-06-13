@@ -24,7 +24,7 @@ const MainContent: React.FC<MainContentProps> = ({
     switch (currentView) {
       case 'dashboard':
         return <Dashboard onNavigate={onNavigate} />;
-      case 'farms':
+      case 'farmers':
         return <FarmerRegistration onBack={() => onNavigate('dashboard')} />;
       case 'schedules':
         return <WorkingScheduleManagement onBack={() => onNavigate('dashboard')} />;

@@ -37,7 +37,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignUp }) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Welcome Back</CardTitle>
+        <CardTitle>AquaWise System Access</CardTitle>
+        <p className="text-sm text-gray-600">Extension Officer and Administrator Login</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -68,7 +69,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignUp }) => {
               onClick={onSwitchToSignUp}
               className="text-sm text-blue-600 hover:underline"
             >
-              Don't have an account? Sign up
+              Need access? Request account
             </button>
           </div>
         </form>
