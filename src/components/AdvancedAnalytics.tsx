@@ -71,7 +71,7 @@ const AdvancedAnalytics = () => {
 
   const chartData: LocationStats[] = Object.values(locationData);
 
-  const soilTypeData = farms.reduce((acc: {[key: string]: number}, farm) => {
+  const soilTypeData: { [key: string]: number } = farms.reduce((acc: {[key: string]: number}, farm) => {
     const soilType = farm.soil_type || 'Unknown';
     acc[soilType] = (acc[soilType] || 0) + 1;
     return acc;
