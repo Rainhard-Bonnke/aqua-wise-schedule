@@ -70,7 +70,7 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-fade-in-up">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-blue-800 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -80,7 +80,7 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
               <Award className="h-4 w-4 mr-2" />
               Homa Bay County Official Platform
             </Badge>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-serif">
               AquaWise
               <span className="block text-green-300">Irrigation Management</span>
             </h1>
@@ -130,7 +130,7 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 font-serif">
               Complete Irrigation Solutions
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -163,7 +163,7 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6 font-serif">
                 Why Choose AquaWise?
               </h2>
               <div className="space-y-4">
@@ -213,7 +213,7 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-green-600 to-blue-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6 font-serif">
             Ready to Transform Your Farm?
           </h2>
           <p className="text-xl text-green-100 mb-8">

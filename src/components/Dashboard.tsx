@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,11 +119,11 @@ const Dashboard = ({ onNavigate, unreadNotifications = 0 }: DashboardProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">AquaWise Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 font-serif">AquaWise Dashboard</h1>
           <p className="text-gray-600 mt-1">Real-time irrigation management for Homa Bay County</p>
         </div>
         <div className="mt-4 sm:mt-0 flex gap-3">
