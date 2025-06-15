@@ -13,13 +13,17 @@ export const createFarmData = (formData: FarmerFormData, farmerId: string) => {
 };
 
 export const createCropsData = (formData: FarmerFormData, farmId: string) => {
+  const numCrops = formData.cropTypes.length;
+  const farmSize = parseFloat(formData.farmSize) || 0;
+  // Prevent division by zero
+  const areaPerCrop = numCrops > 0 ? farmSize / numCrops : farmSize || 1;
   return formData.cropTypes.map((cropName) => ({
     name: cropName,
     farm_id: farmId,
     planted_date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     expected_harvest: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days from now
     water_requirement: 'medium' as const,
-    area: parseFloat(formData.farmSize) / formData.cropTypes.length || 1
+    area: areaPerCrop
   }));
 };
 

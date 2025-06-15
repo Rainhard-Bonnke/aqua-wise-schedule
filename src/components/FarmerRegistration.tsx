@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,10 +44,11 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
     agreesToTerms: false,
     agreesToDataSharing: false
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const progress = (currentStep / TOTAL_STEPS) * 100;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (currentStep < TOTAL_STEPS) {
@@ -57,16 +57,26 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
     }
 
     // Final submission
-    submitRegistration(formData);
-    
-    toast({
-      title: "Registration Successful!",
-      description: "Welcome to Homa Bay County AquaWise System. Your application is being processed.",
-    });
+    setIsSubmitting(true);
+    try {
+      await submitRegistration(formData);
 
-    setTimeout(() => {
-      onBack();
-    }, 2000);
+      toast({
+        title: "Registration Successful!",
+        description: "Welcome to Homa Bay County AquaWise System. Your application is being processed.",
+      });
+
+      setTimeout(() => {
+        onBack();
+      }, 2000);
+    } catch (err: any) {
+      toast({
+        title: "Registration Failed",
+        description: err.message || "An error occurred during registration. Please try again.",
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string | boolean | string[]) => {
@@ -134,6 +144,7 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
                       type="button"
                       variant="outline"
                       onClick={() => setCurrentStep(currentStep - 1)}
+                      disabled={isSubmitting}
                     >
                       Previous
                     </Button>
@@ -142,9 +153,13 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
                   <Button
                     type="submit"
                     className="bg-green-600 hover:bg-green-700 ml-auto"
-                    disabled={currentStep === 4 && !formData.agreesToTerms}
+                    disabled={isSubmitting || (currentStep === 4 && !formData.agreesToTerms)}
                   >
-                    {currentStep === TOTAL_STEPS ? "Submit Registration" : "Next"}
+                    {isSubmitting
+                      ? "Submitting..."
+                      : currentStep === TOTAL_STEPS
+                        ? "Submit Registration"
+                        : "Next"}
                   </Button>
                 </div>
               </form>
