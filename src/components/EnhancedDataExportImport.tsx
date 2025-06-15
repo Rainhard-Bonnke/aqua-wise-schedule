@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,9 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Download, Upload, Database, FileText, Share2, 
   CheckCircle, AlertCircle, ArrowLeft, Calendar,
-  BarChart3, Users, MapPin, Settings
+  BarChart3, MapPin, Settings
 } from "lucide-react";
-import { dataService } from "@/services/dataService";
+import { supabaseDataService } from "@/services/supabaseDataService";
 import { useToast } from "@/hooks/use-toast";
 
 interface EnhancedDataExportImportProps {
@@ -38,6 +38,26 @@ const EnhancedDataExportImport = ({ onBack }: EnhancedDataExportImportProps) => 
   const [isImporting, setIsImporting] = useState(false);
   const [lastExport, setLastExport] = useState<string | null>(null);
 
+  const { data: farmsData, isLoading: isLoadingFarms } = useQuery({
+    queryKey: ['farms-export'],
+    queryFn: supabaseDataService.getFarms
+  });
+
+  const { data: schedulesData, isLoading: isLoadingSchedules } = useQuery({
+    queryKey: ['schedules-export'],
+    queryFn: supabaseDataService.getSchedules
+  });
+
+  const { data: logsData, isLoading: isLoadingLogs } = useQuery({
+    queryKey: ['logs-export'],
+    queryFn: supabaseDataService.getIrrigationLogs
+  });
+
+  const farms = farmsData || [];
+  const schedules = schedulesData || [];
+  const logs = logsData || [];
+  const isLoadingData = isLoadingFarms || isLoadingSchedules || isLoadingLogs;
+
   const handleExport = async () => {
     setIsExporting(true);
     setExportProgress(0);
@@ -57,13 +77,13 @@ const EnhancedDataExportImport = ({ onBack }: EnhancedDataExportImportProps) => 
       };
 
       if (selectedExportOptions.farms) {
-        exportObject.farms = dataService.getFarms();
+        exportObject.farms = farms;
       }
       if (selectedExportOptions.schedules) {
-        exportObject.schedules = dataService.getSchedules();
+        exportObject.schedules = schedules;
       }
       if (selectedExportOptions.logs) {
-        exportObject.logs = dataService.getIrrigationLogs();
+        exportObject.logs = logs;
       }
       if (selectedExportOptions.settings) {
         const settings = localStorage.getItem('aquawise_settings');
@@ -121,38 +141,18 @@ const EnhancedDataExportImport = ({ onBack }: EnhancedDataExportImportProps) => 
       });
       return;
     }
-
+  
     setIsImporting(true);
     setImportProgress(0);
-
-    try {
-      // Simulate progress
-      for (let i = 0; i <= 100; i += 20) {
-        setImportProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
-
-      const success = dataService.importData(importData);
-      
-      if (success) {
-        toast({
-          title: "Import Successful",
-          description: "Your data has been successfully imported.",
-        });
-        setImportData("");
-      } else {
-        throw new Error("Import failed");
-      }
-    } catch (error) {
-      toast({
-        title: "Import Failed",
-        description: "The imported data format is invalid or corrupted.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsImporting(false);
-      setImportProgress(0);
-    }
+  
+    toast({
+      title: "Import Not Implemented",
+      description: "Importing data via this page is currently disabled.",
+      variant: "destructive"
+    });
+  
+    setIsImporting(false);
+    setImportProgress(0);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,38 +169,40 @@ const EnhancedDataExportImport = ({ onBack }: EnhancedDataExportImportProps) => 
 
   const convertToCSV = (data: any): string => {
     // Simple CSV conversion for farms data
-    let csv = "Type,Name,Location,Size,SoilType,Crops,CreatedAt\n";
+    let csv = "";
     
     if (data.farms) {
+      csv += "Type,Name,Location,Size,SoilType,Crops,CreatedAt\n";
       data.farms.forEach((farm: any) => {
-        csv += `Farm,"${farm.name}","${farm.location}",${farm.size},"${farm.soilType}","${farm.crops.length} crops","${farm.createdAt}"\n`;
+        csv += `Farm,"${farm.name}","${farm.location}",${farm.size},"${farm.soil_type}","${farm.crops.length} crops","${farm.created_at}"\n`;
       });
     }
     
     if (data.schedules) {
-      csv += "\nType,FarmId,Frequency,Duration,BestTime,IsActive,NextIrrigation\n";
+      csv += "\nType,FarmId,CropId,Frequency,Duration,BestTime,IsActive,NextIrrigation\n";
       data.schedules.forEach((schedule: any) => {
-        csv += `Schedule,"${schedule.farmId}",${schedule.frequency},${schedule.duration},"${schedule.bestTime}",${schedule.isActive},"${schedule.nextIrrigation}"\n`;
+        csv += `Schedule,"${schedule.farm_id}","${schedule.crop_id}",${schedule.frequency},${schedule.duration},"${schedule.best_time}",${schedule.is_active},"${schedule.next_irrigation}"\n`;
       });
     }
 
     return csv;
   };
 
-  const getDataStats = () => {
-    const farms = dataService.getFarms();
-    const schedules = dataService.getSchedules();
-    const logs = dataService.getIrrigationLogs();
-
-    return {
-      farms: farms.length,
-      schedules: schedules.length,
-      logs: logs.length,
-      totalSize: JSON.stringify({ farms, schedules, logs }).length
-    };
+  const stats = {
+    farms: farms.length,
+    schedules: schedules.length,
+    logs: logs.length,
+    totalSize: JSON.stringify({ farms, schedules, logs }).length
   };
 
-  const stats = getDataStats();
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+        <Database className="h-12 w-12 text-green-600 animate-spin" />
+        <p className="ml-4 text-lg text-gray-700">Loading data management...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">

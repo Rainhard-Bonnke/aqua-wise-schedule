@@ -22,6 +22,30 @@ export interface SupabaseCrop {
   created_at: string;
 }
 
+export interface SupabaseIrrigationSchedule {
+  id: string;
+  farm_id: string;
+  crop_id: string;
+  frequency: number;
+  duration: number;
+  best_time: string;
+  is_active: boolean | null;
+  next_irrigation: string;
+  created_at: string;
+}
+
+export interface SupabaseIrrigationLog {
+  id: string;
+  schedule_id: string;
+  farm_id: string;
+  irrigation_date: string;
+  duration: number;
+  water_used: number;
+  completed: boolean | null;
+  notes?: string | null;
+  created_at: string;
+}
+
 export interface SupabaseProfile {
   id: string;
   name: string;
@@ -144,12 +168,44 @@ export const supabaseDataService = {
   },
 
   async deleteCrop(id: string) {
-    const error = await supabase
+    const { error } = await supabase
       .from('crops')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
+  },
+
+  // Schedule operations
+  async getSchedules(farmId?: string) {
+    let query = supabase
+      .from('irrigation_schedules')
+      .select('*');
+
+    if (farmId) {
+      query = query.eq('farm_id', farmId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  // Log operations
+  async getIrrigationLogs(farmId?: string) {
+    let query = supabase
+      .from('irrigation_logs')
+      .select('*');
+
+    if (farmId) {
+      query = query.eq('farm_id', farmId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   },
 
   // Authentication helpers
