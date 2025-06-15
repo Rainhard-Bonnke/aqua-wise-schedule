@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { Droplets, Thermometer, Activity, AlertTriangle, CheckCircle } from "lucide-react";
 import { soilMoistureService, SoilMoistureReading, SoilMoistureAlert } from "@/services/soilMoistureService";
 import { useToast } from "@/hooks/use-toast";
+import { dataService, Crop } from "@/services/dataService";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SoilMoistureTrackerProps {
   farmId: string;
@@ -20,17 +22,31 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
   const [alerts, setAlerts] = useState<SoilMoistureAlert[]>([]);
   const [latestReading, setLatestReading] = useState<SoilMoistureReading | null>(null);
   const [loading, setLoading] = useState(true);
+  const [crops, setCrops] = useState<Crop[]>([]);
+  const [selectedCropId, setSelectedCropId] = useState<string | undefined>(cropId);
 
   useEffect(() => {
-    loadData();
+    const farmData = dataService.getFarm(farmId);
+    if (farmData) {
+      setCrops(farmData.crops);
+      if (!cropId && farmData.crops.length > 0) {
+        setSelectedCropId(farmData.crops[0].id);
+      } else if (cropId) {
+        setSelectedCropId(cropId);
+      }
+    }
   }, [farmId, cropId]);
+  
+  useEffect(() => {
+    loadData();
+  }, [farmId, selectedCropId]);
 
   const loadData = () => {
     setLoading(true);
     
     const recentReadings = soilMoistureService.getReadings(farmId, 7);
     const farmAlerts = soilMoistureService.getAlerts(farmId);
-    const latest = soilMoistureService.getLatestReading(farmId, cropId);
+    const latest = soilMoistureService.getLatestReading(farmId, selectedCropId);
     
     setReadings(recentReadings);
     setAlerts(farmAlerts.filter(alert => !alert.acknowledged));
@@ -39,7 +55,7 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
   };
 
   const simulateNewReading = () => {
-    if (!cropId) {
+    if (!selectedCropId) {
       toast({
         title: "Select a Crop",
         description: "Please select a specific crop to simulate sensor reading.",
@@ -48,7 +64,7 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
       return;
     }
 
-    const newReading = soilMoistureService.simulateReading(farmId, cropId);
+    const newReading = soilMoistureService.simulateReading(farmId, selectedCropId);
     loadData();
     
     toast({
@@ -88,10 +104,24 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
       {/* Current Status */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Droplets className="h-5 w-5 mr-2 text-blue-600" />
-            Soil Moisture Status
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center">
+              <Droplets className="h-5 w-5 mr-2 text-blue-600" />
+              Soil Moisture Status
+            </CardTitle>
+            {crops.length > 0 && (
+              <Select value={selectedCropId} onValueChange={setSelectedCropId}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Crop" />
+                </SelectTrigger>
+                <SelectContent>
+                  {crops.map((crop) => (
+                    <SelectItem key={crop.id} value={crop.id}>{crop.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
           <CardDescription>Real-time soil conditions monitoring</CardDescription>
         </CardHeader>
         <CardContent>
@@ -148,8 +178,10 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
             <div className="text-center py-8">
               <Droplets className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sensor Data</h3>
-              <p className="text-gray-600 mb-4">Start monitoring soil conditions</p>
-              <Button onClick={simulateNewReading}>
+              <p className="text-gray-600 mb-4">
+                {crops.length > 0 ? 'Select a crop to view data or simulate a new reading.' : 'No crops found for this farm.'}
+              </p>
+              <Button onClick={simulateNewReading} disabled={!selectedCropId}>
                 Simulate Sensor Reading
               </Button>
             </div>
@@ -200,7 +232,7 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
 
       {/* Action Buttons */}
       <div className="flex space-x-3">
-        <Button onClick={simulateNewReading} disabled={!cropId}>
+        <Button onClick={simulateNewReading} disabled={!selectedCropId}>
           <Droplets className="h-4 w-4 mr-2" />
           Take New Reading
         </Button>

@@ -1,7 +1,7 @@
-
 import { dataService, IrrigationSchedule, Farm } from "./dataService";
 import { weatherService } from "./weatherService";
 import { notificationService } from "./notificationService";
+import { smsService } from "./smsService";
 
 export interface Notification {
   id: string;
@@ -126,7 +126,7 @@ class RealTimeNotificationService {
         );
 
         if (!existingNotification) {
-          this.addNotification({
+          const createdNotification = this.addNotification({
             type: 'irrigation',
             title: 'Irrigation Due Soon',
             message: `Irrigation scheduled for ${farm?.name || 'Farm'} in ${Math.round((nextIrrigation.getTime() - now.getTime()) / (1000 * 60))} minutes`,
@@ -136,6 +136,22 @@ class RealTimeNotificationService {
             actionRequired: true,
             actionUrl: `/irrigation/${schedule.id}`
           });
+
+          // Also schedule an SMS notification
+          const user = dataService.getUser();
+          const currentFarm = dataService.getFarm(schedule.farmId);
+          if (user && user.preferences.notifications.sms && user.phone && currentFarm) {
+            const crop = currentFarm.crops.find(c => c.id === schedule.cropId);
+            if (crop) {
+              smsService.scheduleIrrigationReminder(
+                schedule.farmId,
+                currentFarm.farmerName,
+                user.phone,
+                crop.name,
+                schedule.nextIrrigation
+              );
+            }
+          }
         }
       }
 
