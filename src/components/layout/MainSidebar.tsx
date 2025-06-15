@@ -2,9 +2,9 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
-  Home, Users, Calendar, BarChart3, 
+  Home, Calendar, BarChart3, 
   Settings, Calculator, MessageCircle, Activity, 
-  Database, FileText, X
+  Database, FileText, X, UserCheck, Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,15 +23,16 @@ const MainSidebar: React.FC<MainSidebarProps> = ({
 }) => {
   const navigationItems = [
     { label: "Dashboard", value: "dashboard", icon: Home },
-    { label: "Farmers", value: "farmers", icon: Users },
-    { label: "Schedules", value: "schedules", icon: Calendar },
-    { label: "Analytics", value: "analytics", icon: BarChart3 },
-    { label: "Reports", value: "reports", icon: FileText },
+    { label: "Register Farmer", value: "farmers", icon: Plus },
+    { label: "Irrigation Schedules", value: "schedules", icon: Calendar },
+    { label: "Real-time Analytics", value: "analytics", icon: BarChart3 },
+    { label: "Farm Reports", value: "reports", icon: FileText },
     { label: "Cost Calculator", value: "costs", icon: Calculator },
-    { label: "Community", value: "community", icon: MessageCircle },
-    { label: "Monitoring", value: "monitoring", icon: Activity },
+    { label: "Community Forum", value: "community", icon: MessageCircle },
+    { label: "Soil Monitoring", value: "monitoring", icon: Activity },
+    { label: "Extension Dashboard", value: "extension", icon: UserCheck },
     { label: "Data Management", value: "data-management", icon: Database },
-    { label: "Settings", value: "settings", icon: Settings }
+    { label: "System Settings", value: "settings", icon: Settings }
   ];
 
   const handleNavigation = (value: string) => {
@@ -56,7 +57,12 @@ const MainSidebar: React.FC<MainSidebarProps> = ({
       )}>
         {/* Header */}
         <div className="h-16 border-b flex items-center justify-between px-4">
-          <h2 className="font-semibold text-gray-900">Navigation</h2>
+          <div className="flex items-center space-x-2">
+            <div className="bg-green-600 p-1 rounded">
+              <Activity className="h-4 w-4 text-white" />
+            </div>
+            <h2 className="font-bold text-gray-900">AquaWise</h2>
+          </div>
           <Button 
             variant="ghost" 
             size="sm" 

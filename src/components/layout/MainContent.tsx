@@ -10,6 +10,7 @@ import CommunitySharing from '../CommunitySharing';
 import ExtensionOfficerDashboard from '../ExtensionOfficerDashboard';
 import SoilMoistureTracker from '../SoilMoistureTracker';
 import SettingsPage from '../SettingsPage';
+import FarmReports from '../FarmReports';
 
 interface MainContentProps {
   currentView: string;
@@ -30,6 +31,8 @@ const MainContent: React.FC<MainContentProps> = ({
         return <WorkingScheduleManagement onBack={() => onNavigate('dashboard')} />;
       case 'analytics':
         return <AdvancedAnalytics />;
+      case 'reports':
+        return <FarmReports />;
       case 'data-management':
         return <DataExportImport onBack={() => onNavigate('dashboard')} />;
       case 'costs':
