@@ -16,6 +16,10 @@ class RealNotificationService {
     this.startRealTimeChecks();
   }
 
+  addNotification(notification: Omit<RealNotification, 'id' | 'timestamp' | 'read'>): RealNotification {
+    return this.notificationStore.addNotification(notification);
+  }
+
   subscribe(callback: (notifications: RealNotification[]) => void) {
     return this.notificationStore.subscribe(callback);
   }
