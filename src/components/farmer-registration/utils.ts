@@ -2,12 +2,13 @@
 import { supabaseDataService } from "@/services/supabaseDataService";
 import { FarmerFormData } from "./types";
 
-export const createFarmData = (formData: FarmerFormData) => {
+export const createFarmData = (formData: FarmerFormData, farmerId: string) => {
   return {
     name: formData.farmName || `${formData.name}'s Farm`,
     location: formData.location,
     size: parseFloat(formData.farmSize) || 0,
-    soil_type: (formData.soilType?.toLowerCase() || "mixed") as 'clay' | 'sandy' | 'loamy' | 'silty'
+    soil_type: (formData.soilType?.toLowerCase() || "mixed") as 'clay' | 'sandy' | 'loamy' | 'silty',
+    farmer_id: farmerId
   };
 };
 
@@ -26,8 +27,14 @@ export const submitRegistration = async (formData: FarmerFormData) => {
   console.log("Registration data:", formData);
   
   try {
-    // Create the farm
-    const farmData = createFarmData(formData);
+    // Get current user
+    const currentUser = await supabaseDataService.getCurrentUser();
+    if (!currentUser) {
+      throw new Error("User must be authenticated to register a farm");
+    }
+
+    // Create the farm with the current user's ID
+    const farmData = createFarmData(formData, currentUser.id);
     const createdFarm = await supabaseDataService.createFarm(farmData);
     
     // Create crops for the farm
