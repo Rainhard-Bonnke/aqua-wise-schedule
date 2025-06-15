@@ -45,12 +45,12 @@ const EnhancedDataExportImport = ({ onBack }: EnhancedDataExportImportProps) => 
 
   const { data: schedulesData, isLoading: isLoadingSchedules } = useQuery({
     queryKey: ['schedules-export'],
-    queryFn: supabaseDataService.getSchedules
+    queryFn: () => supabaseDataService.getSchedules()
   });
 
   const { data: logsData, isLoading: isLoadingLogs } = useQuery({
     queryKey: ['logs-export'],
-    queryFn: supabaseDataService.getIrrigationLogs
+    queryFn: () => supabaseDataService.getIrrigationLogs()
   });
 
   const farms = farmsData || [];
