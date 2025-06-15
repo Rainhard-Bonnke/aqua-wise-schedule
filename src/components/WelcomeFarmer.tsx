@@ -1,13 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Droplets, Sun, Calendar, Phone, CheckCircle, ArrowRight } from "lucide-react";
+import { Droplets, Sun, Calendar, Phone, CheckCircle, ArrowRight, Loader2 } from "lucide-react";
 import { weatherService, WeatherData } from "@/services/weatherService";
 import { useToast } from "@/hooks/use-toast";
+import { smsService } from "@/services/smsService";
 
 interface WelcomeFarmerProps {
   farmerData: {
@@ -23,6 +23,7 @@ const WelcomeFarmer = ({ farmerData, onContinue }: WelcomeFarmerProps) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [testPhone, setTestPhone] = useState(farmerData.phone);
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   useEffect(() => {
     loadWeatherData();
@@ -39,7 +40,7 @@ const WelcomeFarmer = ({ farmerData, onContinue }: WelcomeFarmerProps) => {
     }
   };
 
-  const handleTestSMS = () => {
+  const handleTestSMS = async () => {
     if (!testPhone) {
       toast({
         title: "Phone Number Required",
@@ -49,10 +50,35 @@ const WelcomeFarmer = ({ farmerData, onContinue }: WelcomeFarmerProps) => {
       return;
     }
 
-    toast({
-      title: "SMS Simulation Enabled!",
-      description: "You will now receive simulated SMS notifications within the app.",
-    });
+    setIsSendingTest(true);
+    try {
+      const result = await smsService.sendSms(
+        testPhone,
+        "Welcome to AquaWise! Your SMS notifications are successfully set up."
+      );
+
+      if (result.success) {
+        toast({
+          title: "Test SMS Sent!",
+          description: "Check your phone for a confirmation message. Real SMS alerts are now active.",
+        });
+      } else {
+        toast({
+          title: "SMS Failed",
+          description: result.error || "Could not send test SMS. Please check your phone number and Twilio setup.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to send test SMS:", error);
+      toast({
+        title: "SMS Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   return (
@@ -179,9 +205,14 @@ const WelcomeFarmer = ({ farmerData, onContinue }: WelcomeFarmerProps) => {
                 <Button 
                   onClick={handleTestSMS}
                   className="w-full bg-blue-600 hover:bg-blue-700"
+                  disabled={isSendingTest}
                 >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Send Test SMS
+                  {isSendingTest ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Phone className="h-4 w-4 mr-2" />
+                  )}
+                  {isSendingTest ? "Sending..." : "Send Test SMS"}
                 </Button>
               </div>
 
