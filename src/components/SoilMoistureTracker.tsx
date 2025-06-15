@@ -1,15 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { Droplets, Thermometer, Activity, AlertTriangle, CheckCircle } from "lucide-react";
+import { Droplets, Thermometer, Activity, AlertTriangle, CheckCircle, TrendingUp } from "lucide-react";
 import { soilMoistureService, SoilMoistureReading, SoilMoistureAlert } from "@/services/soilMoistureService";
 import { useToast } from "@/hooks/use-toast";
 import { dataService, Crop } from "@/services/dataService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface SoilMoistureTrackerProps {
   farmId: string;
@@ -188,6 +188,56 @@ const SoilMoistureTracker = ({ farmId, cropId }: SoilMoistureTrackerProps) => {
           )}
         </CardContent>
       </Card>
+
+      {/* Historical Data Chart */}
+      {selectedCropId && (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                    7-Day Soil Condition Trend
+                </CardTitle>
+                <CardDescription>Historical data for the selected crop</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {readings.filter(r => r.cropId === selectedCropId).length > 1 ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={readings.filter(r => r.cropId === selectedCropId)}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                                dataKey="timestamp" 
+                                tickFormatter={(time) => new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                minTickGap={20}
+                            />
+                            <YAxis yAxisId="left" unit="%" domain={[0, 100]} label={{ value: 'Moisture', angle: -90, position: 'insideLeft' }} />
+                            <YAxis yAxisId="right" orientation="right" label={{ value: 'Temp / pH', angle: -90, position: 'insideRight' }} />
+                            <Tooltip 
+                                labelFormatter={(label) => new Date(label).toLocaleString()}
+                                formatter={(value, name) => {
+                                    if (name === 'moistureLevel') return [`${(value as number).toFixed(1)}%`, 'Moisture'];
+                                    if (name === 'temperature') return [`${(value as number).toFixed(1)}°C`, 'Temperature'];
+                                    if (name === 'pH') return [(value as number).toFixed(1), 'pH'];
+                                    return [value, name];
+                                }}
+                            />
+                            <Legend />
+                            <Line yAxisId="left" type="monotone" dataKey="moistureLevel" stroke="#3b82f6" name="Moisture" dot={false} />
+                            <Line yAxisId="right" type="monotone" dataKey="temperature" stroke="#f97316" name="Temperature" dot={false} />
+                            <Line yAxisId="right" type="monotone" dataKey="pH" stroke="#8b5cf6" name="pH" dot={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="text-center py-12">
+                        <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Not Enough Data for Trend</h3>
+                        <p className="text-gray-600">
+                            At least two data points are needed to show a trend. Try simulating more readings.
+                        </p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+      )}
 
       {/* Alerts */}
       {alerts.length > 0 && (

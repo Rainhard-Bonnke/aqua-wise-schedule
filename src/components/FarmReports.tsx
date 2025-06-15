@@ -1,40 +1,90 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
-  FileText, Download, Calendar, MapPin, Users, 
+  FileText, Download, Calendar, 
   Droplets, TrendingUp, Printer, Filter
 } from "lucide-react";
-import { supabaseDataService } from "@/services/supabaseDataService";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { subDays } from "date-fns";
 
 const FarmReports = () => {
   const { toast } = useToast();
   const [farms, setFarms] = useState<any[]>([]);
   const [crops, setCrops] = useState<any[]>([]);
+  const [irrigationLogs, setIrrigationLogs] = useState<any[]>([]);
   const [selectedFarm, setSelectedFarm] = useState('all');
   const [dateRange, setDateRange] = useState('month');
   const [loading, setLoading] = useState(true);
 
+  const getDateRange = (rangeKey: string) => {
+    const now = new Date();
+    let from: Date | undefined;
+    const to = new Date();
+    switch(rangeKey) {
+        case 'week':
+            from = subDays(now, 7);
+            break;
+        case 'month':
+            from = subDays(now, 30);
+            break;
+        case 'quarter':
+            from = subDays(now, 90);
+            break;
+        case 'year':
+            from = subDays(now, 365);
+            break;
+        default:
+            from = undefined;
+    }
+    return { from, to };
+  }
+
   useEffect(() => {
     loadReportData();
-  }, []);
+  }, [selectedFarm, dateRange]);
 
   const loadReportData = async () => {
+    setLoading(true);
     try {
-      const [farmsData, cropsData] = await Promise.all([
-        supabaseDataService.getFarms(),
-        supabaseDataService.getCrops()
-      ]);
+      const farmsPromise = supabase.from('farms').select('*');
+      const cropsPromise = supabase.from('crops').select('*');
+
+      const { from, to } = getDateRange(dateRange);
+
+      let logsQuery = supabase.from('irrigation_logs').select('*, farms(name), irrigation_schedules(crops(name))').order('irrigation_date', { ascending: false });
+
+      if (selectedFarm !== 'all') {
+        logsQuery = logsQuery.eq('farm_id', selectedFarm);
+      }
+      if (from) {
+        logsQuery = logsQuery.gte('irrigation_date', from.toISOString());
+      }
+      if (to) {
+        logsQuery = logsQuery.lte('irrigation_date', to.toISOString());
+      }
+
+      const [
+          { data: farmsData, error: farmsError },
+          { data: cropsData, error: cropsError },
+          { data: logsData, error: logsError }
+      ] = await Promise.all([farmsPromise, cropsPromise, logsQuery]);
+
+      if (farmsError) throw farmsError;
+      if (cropsError) throw cropsError;
+      if (logsError) throw logsError;
       
-      setFarms(farmsData);
-      setCrops(cropsData);
+      setFarms(farmsData || []);
+      setCrops(cropsData || []);
+      setIrrigationLogs(logsData || []);
     } catch (error) {
       console.error('Reports loading error:', error);
       toast({
@@ -47,8 +97,71 @@ const FarmReports = () => {
     }
   };
 
-  const generateReport = (type: string) => {
+  const downloadCSV = (headers: string[], data: any[][], filename: string) => {
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  const generateReport = (type: string, format: 'pdf' | 'csv' | 'excel' = 'pdf') => {
     const doc = new jsPDF();
+
+    if (format === 'csv' || format === 'excel') {
+        let headers: string[] = [];
+        let data: any[][] = [];
+        const filename = `aquawise-${type.toLowerCase().replace(/ /g, '-')}-report.csv`;
+
+        if (type === 'Farm Summary' || type === 'Complete') {
+            headers = ['Farm Name', 'Location', 'Size (acres)', 'Soil Type', 'Crops'];
+            data = filteredFarms.map(farm => {
+                const farmCrops = crops.filter(c => c.farm_id === farm.id);
+                return [
+                    farm.name, farm.location, farm.size, farm.soil_type,
+                    farmCrops.map(c => c.name).join(', ')
+                ];
+            });
+        }
+        if (type === 'Performance' || type === 'Complete') {
+            if (data.length > 0) data.push(['']); // separator
+            headers = ['Farm Name', 'Water Efficiency', 'Active Crops', 'Acres Managed'];
+            data.push(...filteredFarms.map(farm => {
+                const farmCrops = crops.filter(c => c.farm_id === farm.id);
+                const efficiency = Math.min(95, 70 + (farmCrops.length * 5));
+                return [farm.name, `${efficiency}%`, farmCrops.length, farm.size];
+            }));
+        }
+        if (type === 'Water Usage' || type === 'Complete') {
+            if (data.length > 0) data.push(['']); // separator
+            headers = ['Farm', 'Crop', 'Date', 'Duration (min)', 'Water Used (L)'];
+            data.push(...irrigationLogs.map(log => [
+                log.farms?.name || 'N/A',
+                log.irrigation_schedules?.crops?.name || 'N/A',
+                new Date(log.irrigation_date).toLocaleString(),
+                log.duration,
+                log.water_used
+            ]));
+        }
+        
+        if (data.length > 0) {
+            downloadCSV(type === 'Complete' ? ['AquaWise Complete Report'] : headers, data, filename);
+        }
+
+        toast({ title: "Report Downloaded", description: `Your ${type} report has been generated.` });
+        return;
+    }
+    
+    // PDF Generation
     const today = new Date().toLocaleDateString();
     const title = `AquaWise Report: ${type}`;
 
@@ -118,10 +231,27 @@ const FarmReports = () => {
         addPageIfNeeded();
         doc.setFontSize(14);
         doc.text('Irrigation & Water Usage', 14, finalY + 15);
-        autoTable(doc, {
+        if(irrigationLogs.length > 0) {
+          const waterUsageBody = irrigationLogs.map(log => [
+              log.farms?.name || 'N/A',
+              log.irrigation_schedules?.crops?.name || 'N/A',
+              new Date(log.irrigation_date).toLocaleDateString(),
+              `${log.duration} min`,
+              `${log.water_used} L`
+          ]);
+          autoTable(doc, {
+              startY: finalY + 20,
+              head: [['Farm', 'Crop', 'Date', 'Duration', 'Water Used (L)']],
+              body: waterUsageBody,
+              theme: 'striped',
+              headStyles: { fillColor: [22, 163, 74] },
+          });
+        } else {
+          autoTable(doc, {
             startY: finalY + 20,
-            body: [['Irrigation data is not yet available in reports. This feature is coming soon.']],
-        });
+            body: [['No irrigation data available for the selected period.']],
+          });
+        }
         finalY = (doc as any).lastAutoTable.finalY;
     }
 
@@ -316,21 +446,42 @@ const FarmReports = () => {
             <TabsContent value="irrigation">
               <Card>
                 <CardHeader>
-                  <CardTitle>Irrigation Reports</CardTitle>
-                  <CardDescription>Water usage and irrigation schedule reports</CardDescription>
+                  <CardTitle>Irrigation Logs</CardTitle>
+                  <CardDescription>Water usage and irrigation activities for the selected period.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-12">
-                    <Droplets className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Irrigation Data</h3>
-                    <p className="text-gray-600 mb-4">
-                      Irrigation logs and water usage reports will appear here as farmers use the system.
-                    </p>
-                    <Button variant="outline">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Set Up Irrigation Schedules
-                    </Button>
-                  </div>
+                  {irrigationLogs.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Farm</TableHead>
+                          <TableHead>Crop</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Water Used</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {irrigationLogs.map((log) => (
+                          <TableRow key={log.id}>
+                            <TableCell className="font-medium">{log.farms?.name || 'N/A'}</TableCell>
+                            <TableCell>{log.irrigation_schedules?.crops?.name || 'N/A'}</TableCell>
+                            <TableCell>{new Date(log.irrigation_date).toLocaleString()}</TableCell>
+                            <TableCell>{log.duration} mins</TableCell>
+                            <TableCell>{log.water_used} L</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Droplets className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Irrigation Data</h3>
+                      <p className="text-gray-600">
+                        No irrigation logs found for the selected farm and date range.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -345,7 +496,7 @@ const FarmReports = () => {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Button 
-                        onClick={() => generateReport('Farm Summary')}
+                        onClick={() => generateReport('Farm Summary', 'pdf')}
                         className="h-20 flex flex-col items-center justify-center space-y-2"
                       >
                         <Download className="h-6 w-6" />
@@ -353,16 +504,16 @@ const FarmReports = () => {
                         <span className="text-xs opacity-75">PDF Format</span>
                       </Button>
                       <Button 
-                        onClick={() => generateReport('Performance')}
+                        onClick={() => generateReport('Performance', 'excel')}
                         variant="outline"
                         className="h-20 flex flex-col items-center justify-center space-y-2"
                       >
                         <TrendingUp className="h-6 w-6" />
                         <span>Performance Analytics</span>
-                        <span className="text-xs opacity-75">Excel Format</span>
+                        <span className="text-xs opacity-75">CSV (for Excel)</span>
                       </Button>
                       <Button 
-                        onClick={() => generateReport('Water Usage')}
+                        onClick={() => generateReport('Water Usage', 'csv')}
                         variant="outline"
                         className="h-20 flex flex-col items-center justify-center space-y-2"
                       >
@@ -371,7 +522,7 @@ const FarmReports = () => {
                         <span className="text-xs opacity-75">CSV Format</span>
                       </Button>
                       <Button 
-                        onClick={() => generateReport('Complete')}
+                        onClick={() => generateReport('Complete', 'pdf')}
                         variant="outline"
                         className="h-20 flex flex-col items-center justify-center space-y-2"
                       >

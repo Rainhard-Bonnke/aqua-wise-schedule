@@ -26,6 +26,8 @@ export interface SoilMoistureAlert {
   acknowledged: boolean;
 }
 
+import { realNotificationService } from "./realNotificationService";
+
 class SoilMoistureService {
   private storagePrefix = 'aquawise_soil_';
 
@@ -116,8 +118,40 @@ class SoilMoistureService {
   // Alert management
   createAlert(alert: SoilMoistureAlert): void {
     const alerts = this.getAlerts();
+
+    // Prevent duplicate alerts within a short time frame
+    const recentAlert = alerts.find(a => 
+      a.cropId === alert.cropId &&
+      a.alertType === alert.alertType &&
+      !a.acknowledged &&
+      (new Date().getTime() - new Date(a.timestamp).getTime()) < 60 * 60 * 1000 // 1 hour
+    );
+
+    if (recentAlert) {
+      console.log('Duplicate soil moisture alert suppressed.');
+      return; // Don't create a new alert if a similar one exists recently
+    }
+
     alerts.push(alert);
     localStorage.setItem(`${this.storagePrefix}alerts`, JSON.stringify(alerts));
+
+    // Also send a real-time notification
+    realNotificationService.addNotification({
+        type: 'soil_moisture_alert',
+        title: `${alert.alertType.charAt(0).toUpperCase() + alert.alertType.slice(1)} Soil Moisture`,
+        message: `Moisture for a crop is at ${alert.moistureLevel.toFixed(1)}%. Threshold: ${alert.threshold}%.`,
+        priority: 'high',
+        farmId: alert.farmId,
+        actionRequired: true,
+        actionData: {
+            alertId: alert.id,
+            farmId: alert.farmId,
+            cropId: alert.cropId,
+            moistureLevel: alert.moistureLevel,
+            threshold: alert.threshold,
+            alertType: alert.alertType
+        }
+    });
   }
 
   getAlerts(farmId?: string): SoilMoistureAlert[] {
