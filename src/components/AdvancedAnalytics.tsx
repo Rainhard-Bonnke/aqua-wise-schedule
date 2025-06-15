@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -183,7 +182,7 @@ const AdvancedAnalytics = () => {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={(entry) => `${entry.name} ${(entry.percent * 100).toFixed(0)}%`}
+                          label={(entry: any) => `${entry.name} ${(entry.percent * 100).toFixed(0)}%`}
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
