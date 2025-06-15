@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Droplets, Sun, Calendar, Phone, CheckCircle, ArrowRight } from "lucide-react";
 import { weatherService, WeatherData } from "@/services/weatherService";
-import { smsService } from "@/services/smsService";
 import { useToast } from "@/hooks/use-toast";
 
 interface WelcomeFarmerProps {
@@ -50,7 +48,6 @@ const WelcomeFarmer = ({ farmerData, onContinue }: WelcomeFarmerProps) => {
       return;
     }
 
-    smsService.sendTestSMS(testPhone, farmerData.name);
     toast({
       title: "Test SMS Sent!",
       description: "Check your phone for the test message. SMS reminders are now active.",

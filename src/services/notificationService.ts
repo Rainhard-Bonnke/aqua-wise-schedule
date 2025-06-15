@@ -1,4 +1,3 @@
-
 // Notification service for SMS and email simulation
 import { smsService } from './smsService';
 
@@ -40,15 +39,9 @@ class NotificationService {
     this.notifications.push(notification);
     this.scheduleNotification(notification);
 
-    // Schedule SMS reminder if farmer data is available
-    if (farmerData && farmerData.phone) {
-      smsService.scheduleIrrigationReminder(
-        farmId,
-        farmerData.name,
-        farmerData.phone,
-        cropName,
-        scheduledTime
-      );
+    // SMS functionality was here, removed because smsService is obsolete.
+    if (farmerData) {
+      // This block is kept for potential future use, but smsService is removed.
     }
   }
 
@@ -70,14 +63,9 @@ class NotificationService {
     this.notifications.push(notification);
     this.sendNotification(notification);
 
-    // Send SMS weather alert if farmer data is available
-    if (farmerData && farmerData.phone) {
-      smsService.scheduleWeatherAlert(
-        farmId,
-        farmerData.name,
-        farmerData.phone,
-        weatherCondition
-      );
+    // SMS functionality was here, removed because smsService is obsolete.
+    if (farmerData) {
+      // This block is kept for potential future use, but smsService is removed.
     }
   }
 

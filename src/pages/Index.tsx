@@ -1,9 +1,8 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import AuthPage from "@/components/auth/AuthPage";
 import MainLayout from "@/components/MainLayout";
 import { useEffect, useState } from "react";
-import { realTimeNotificationService } from "@/services/realTimeNotificationService";
+import { realNotificationService } from "@/services/realNotificationService";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -12,8 +11,8 @@ const Index = () => {
   useEffect(() => {
     if (user) {
       // Subscribe to real-time notifications
-      const unsubscribe = realTimeNotificationService.subscribe((notifications) => {
-        setUnreadNotifications(realTimeNotificationService.getUnreadCount());
+      const unsubscribe = realNotificationService.subscribe(() => {
+        setUnreadNotifications(realNotificationService.getUnreadCount());
       });
 
       // Request notification permissions
