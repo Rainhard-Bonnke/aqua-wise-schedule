@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,8 +50,8 @@ const WelcomeFarmer = ({ farmerData, onContinue }: WelcomeFarmerProps) => {
     }
 
     toast({
-      title: "Test SMS Sent!",
-      description: "Check your phone for the test message. SMS reminders are now active.",
+      title: "SMS Simulation Enabled!",
+      description: "You will now receive simulated SMS notifications within the app.",
     });
   };
 

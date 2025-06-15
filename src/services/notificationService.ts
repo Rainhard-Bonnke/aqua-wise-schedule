@@ -1,5 +1,5 @@
+
 // Notification service for SMS and email simulation
-import { smsService } from './smsService';
 
 export interface NotificationPreferences {
   sms: boolean;
