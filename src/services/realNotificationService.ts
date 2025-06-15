@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { dataService } from "./dataService";
+import { smsService } from "./smsService";
 
 export interface RealNotification {
   id: string;
@@ -83,7 +84,7 @@ class RealNotificationService {
         .from('irrigation_schedules')
         .select(`
           *,
-          farms (name, location),
+          farms (name, location, farmer_id),
           crops (name)
         `)
         .eq('is_active', true);
@@ -107,6 +108,10 @@ class RealNotificationService {
 
           if (!existingNotification) {
             const minutesUntil = Math.round((nextIrrigation.getTime() - now.getTime()) / (1000 * 60));
+            
+            if (schedule.farms?.farmer_id) {
+              this.sendIrrigationSms(schedule, 'due', { minutesUntil });
+            }
             
             this.addNotification({
               type: 'irrigation_due',
@@ -137,6 +142,10 @@ class RealNotificationService {
           if (!existingOverdueNotification) {
             const hoursOverdue = Math.round((now.getTime() - nextIrrigation.getTime()) / (1000 * 60 * 60));
             
+            if (schedule.farms?.farmer_id) {
+              this.sendIrrigationSms(schedule, 'overdue', { hoursOverdue });
+            }
+            
             this.addNotification({
               type: 'irrigation_overdue',
               title: 'Overdue Irrigation',
@@ -157,6 +166,39 @@ class RealNotificationService {
       }
     } catch (error) {
       console.error('Error checking due irrigations:', error);
+    }
+  }
+
+  private async sendIrrigationSms(schedule: any, type: 'due' | 'overdue', details: { minutesUntil?: number, hoursOverdue?: number }) {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('id', schedule.farms.farmer_id)
+        .single();
+
+      if (profileError) {
+        console.error(`Error fetching profile for SMS for farmer ${schedule.farms.farmer_id}:`, profileError);
+        return;
+      }
+
+      if (profile?.phone) {
+        let smsMessage = '';
+        if (type === 'due') {
+          smsMessage = `AquaWise Reminder: Irrigation for ${schedule.crops.name} at ${schedule.farms.name} is due in ${details.minutesUntil} minutes.`;
+        } else {
+          smsMessage = `AquaWise Alert: Irrigation for ${schedule.crops.name} at ${schedule.farms.name} is ${details.hoursOverdue} hours overdue. Please attend to it.`;
+        }
+
+        const result = await smsService.sendSms(profile.phone, smsMessage);
+        if (result.success) {
+          console.log(`Irrigation SMS reminder sent to ${profile.phone}`);
+        } else {
+          console.error(`Failed to send irrigation SMS to ${profile.phone}: ${result.error}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error in sendIrrigationSms:', error);
     }
   }
 
@@ -303,3 +345,4 @@ class RealNotificationService {
 }
 
 export const realNotificationService = new RealNotificationService();
+
