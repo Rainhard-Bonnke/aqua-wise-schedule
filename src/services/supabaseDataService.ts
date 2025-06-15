@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface SupabaseFarm {
@@ -96,10 +95,15 @@ export const supabaseDataService = {
     return data || [];
   },
 
-  async createFarm(farm: Omit<SupabaseFarm, 'id' | 'created_at'>) {
+  async createFarm(farm: Omit<SupabaseFarm, 'id' | 'created_at' | 'farmer_id'>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const farmData = { ...farm, farmer_id: user.id };
+
     const { data, error } = await supabase
       .from('farms')
-      .insert(farm)
+      .insert(farmData)
       .select()
       .single();
 
