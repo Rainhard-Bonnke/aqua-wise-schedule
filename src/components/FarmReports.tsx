@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,8 @@ import {
 } from "lucide-react";
 import { supabaseDataService } from "@/services/supabaseDataService";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const FarmReports = () => {
   const { toast } = useToast();
@@ -47,9 +48,88 @@ const FarmReports = () => {
   };
 
   const generateReport = (type: string) => {
+    const doc = new jsPDF();
+    const today = new Date().toLocaleDateString();
+    const title = `AquaWise Report: ${type}`;
+
+    doc.setFontSize(18);
+    doc.text(title, 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${today}`, 14, 30);
+    
+    const farmName = selectedFarm === 'all'
+      ? 'All Farms'
+      : farms.find(f => f.id === selectedFarm)?.name || 'Selected Farm';
+    doc.text(`For: ${farmName}`, 14, 36);
+
+    let finalY = 40;
+
+    const addPageIfNeeded = () => {
+      if (finalY > 250) {
+        doc.addPage();
+        finalY = 20;
+      }
+    };
+    
+    if (type === 'Farm Summary' || type === 'Complete') {
+      addPageIfNeeded();
+      doc.setFontSize(14);
+      doc.text('Farm Summary', 14, finalY + 10);
+      const summaryBody = filteredFarms.map(farm => {
+        const farmCrops = crops.filter(c => c.farm_id === farm.id);
+        return [
+          farm.name,
+          farm.location,
+          farm.size,
+          farm.soil_type,
+          farmCrops.length > 0 ? farmCrops.map(c => c.name).join(', ') : 'None'
+        ];
+      });
+      autoTable(doc, {
+        startY: finalY + 15,
+        head: [['Farm Name', 'Location', 'Size (acres)', 'Soil Type', 'Crops']],
+        body: summaryBody,
+        theme: 'striped',
+        headStyles: { fillColor: [22, 163, 74] },
+      });
+      finalY = (doc as any).lastAutoTable.finalY;
+    }
+
+    if (type === 'Performance' || type === 'Complete') {
+      addPageIfNeeded();
+      doc.setFontSize(14);
+      doc.text('Performance Metrics', 14, finalY + 15);
+      const performanceBody = filteredFarms.map(farm => {
+        const farmCrops = crops.filter(c => c.farm_id === farm.id);
+        const efficiency = Math.min(95, 70 + (farmCrops.length * 5));
+        return [farm.name, `${efficiency}%`, farmCrops.length, farm.size];
+      });
+      autoTable(doc, {
+        startY: finalY + 20,
+        head: [['Farm Name', 'Water Efficiency', 'Active Crops', 'Acres Managed']],
+        body: performanceBody,
+        theme: 'grid',
+        headStyles: { fillColor: [22, 163, 74] },
+      });
+      finalY = (doc as any).lastAutoTable.finalY;
+    }
+    
+    if (type === 'Water Usage' || type === 'Complete') {
+        addPageIfNeeded();
+        doc.setFontSize(14);
+        doc.text('Irrigation & Water Usage', 14, finalY + 15);
+        autoTable(doc, {
+            startY: finalY + 20,
+            body: [['Irrigation data is not yet available in reports. This feature is coming soon.']],
+        });
+        finalY = (doc as any).lastAutoTable.finalY;
+    }
+
+    doc.save(`aquawise-${type.toLowerCase().replace(/ /g, '-')}-report.pdf`);
+
     toast({
       title: "Report Generated",
-      description: `${type} report has been generated and downloaded.`,
+      description: `Your ${type} report has been successfully downloaded.`,
     });
   };
 
