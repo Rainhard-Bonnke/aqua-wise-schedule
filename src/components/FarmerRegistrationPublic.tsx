@@ -97,8 +97,6 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
   };
 
   const handleSubmit = () => {
-    // Here you would typically save to a public database table for farmers
-    // For now, we'll just complete the registration
     toast({
       title: "Registration Successful!",
       description: "Welcome to AquaWise! You can now access all features.",
@@ -350,7 +348,6 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <Button 
             variant="ghost" 
@@ -367,7 +364,6 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
           </div>
         </div>
 
-        {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-between max-w-2xl mx-auto">
             {steps.map((step, index) => (
@@ -396,7 +392,6 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
           </div>
         </div>
 
-        {/* Form Content */}
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -409,7 +404,6 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
           </CardContent>
         </Card>
 
-        {/* Navigation */}
         <div className="flex justify-between max-w-2xl mx-auto mt-6">
           <Button
             variant="outline"
