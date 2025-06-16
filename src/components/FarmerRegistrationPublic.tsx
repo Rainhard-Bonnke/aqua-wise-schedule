@@ -368,13 +368,11 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
           <div className="flex items-center justify-between max-w-2xl mx-auto">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className={`
-                  flex items-center justify-center w-10 h-10 rounded-full border-2 
-                  ${currentStep >= step.id 
-                    ? 'bg-green-600 border-green-600 text-white' 
-                    : 'bg-white border-gray-300 text-gray-400'
-                  }
-                `}>
+                <div className={
+                  currentStep >= step.id 
+                    ? 'flex items-center justify-center w-10 h-10 rounded-full border-2 bg-green-600 border-green-600 text-white' 
+                    : 'flex items-center justify-center w-10 h-10 rounded-full border-2 bg-white border-gray-300 text-gray-400'
+                }>
                   {currentStep > step.id ? (
                     <CheckCircle className="h-5 w-5" />
                   ) : (
@@ -382,10 +380,9 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
                   )}
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`
-                    w-16 h-0.5 mx-2
-                    ${currentStep > step.id ? 'bg-green-600' : 'bg-gray-300'}
-                  `} />
+                  <div className={
+                    currentStep > step.id ? 'w-16 h-0.5 mx-2 bg-green-600' : 'w-16 h-0.5 mx-2 bg-gray-300'
+                  } />
                 )}
               </div>
             ))}
