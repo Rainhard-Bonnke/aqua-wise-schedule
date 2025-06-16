@@ -1,12 +1,13 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Droplets, Users, TrendingUp, Smartphone, Shield, BarChart3, 
-  CheckCircle, ArrowRight, MapPin, Calendar, Zap, Award, Star
+  CheckCircle, ArrowRight, MapPin, Calendar, Zap, Award, Star, UserPlus
 } from "lucide-react";
+import FarmerRegistrationPublic from "./FarmerRegistrationPublic";
+import WelcomeFarmer from "./WelcomeFarmer";
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -15,6 +16,9 @@ interface LandingPageProps {
 
 const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
   const [animatedCounter, setAnimatedCounter] = useState(0);
+  const [showFarmerRegistration, setShowFarmerRegistration] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [farmerData, setFarmerData] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,6 +26,35 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
     }, 100);
     return () => clearInterval(interval);
   }, []);
+
+  const handleFarmerRegistrationComplete = (data: any) => {
+    setFarmerData(data);
+    setShowFarmerRegistration(false);
+    setShowWelcome(true);
+  };
+
+  const handleWelcomeComplete = () => {
+    setShowWelcome(false);
+    // Farmer can now access the basic features
+  };
+
+  if (showWelcome && farmerData) {
+    return (
+      <WelcomeFarmer 
+        farmerData={farmerData}
+        onContinue={handleWelcomeComplete}
+      />
+    );
+  }
+
+  if (showFarmerRegistration) {
+    return (
+      <FarmerRegistrationPublic
+        onBack={() => setShowFarmerRegistration(false)}
+        onComplete={handleFarmerRegistrationComplete}
+      />
+    );
+  }
 
   const features = [
     {
@@ -90,12 +123,12 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                onClick={onGetStarted}
+                onClick={() => setShowFarmerRegistration(true)}
                 size="lg"
                 className="bg-white text-green-700 hover:bg-green-50 px-8 py-4 text-lg font-semibold"
               >
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <UserPlus className="mr-2 h-5 w-5" />
+                Register as Farmer
               </Button>
               <Button 
                 onClick={onLogin}
@@ -103,7 +136,7 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
                 size="lg"
                 className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
               >
-                Sign In
+                Extension Officer Login
               </Button>
             </div>
           </div>
@@ -219,14 +252,24 @@ const LandingPage = ({ onGetStarted, onLogin }: LandingPageProps) => {
           <p className="text-xl text-green-100 mb-8">
             Join hundreds of farmers already saving water and increasing yields
           </p>
-          <Button 
-            onClick={onGetStarted}
-            size="lg"
-            className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
-          >
-            Start Free Trial
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              onClick={() => setShowFarmerRegistration(true)}
+              size="lg"
+              className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
+            >
+              <UserPlus className="mr-2 h-5 w-5" />
+              Join as Farmer
+            </Button>
+            <Button 
+              onClick={onLogin}
+              variant="outline"
+              size="lg"
+              className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold"
+            >
+              Extension Officer Access
+            </Button>
+          </div>
         </div>
       </section>
 

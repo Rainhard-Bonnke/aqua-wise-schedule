@@ -1,12 +1,16 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import AuthPage from "@/components/auth/AuthPage";
 import MainLayout from "@/components/MainLayout";
+import LandingPage from "@/components/LandingPage";
 import { useEffect, useState } from "react";
 import { realNotificationService } from "@/services/realNotificationService";
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [showAuth, setShowAuth] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -32,11 +36,23 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return <AuthPage />;
+  // Show dashboard if user is authenticated (extension officer/admin)
+  if (user && showDashboard) {
+    return <MainLayout unreadNotifications={unreadNotifications} />;
   }
 
-  return <MainLayout unreadNotifications={unreadNotifications} />;
+  // Show auth page if requested
+  if (showAuth) {
+    return <AuthPage onBack={() => setShowAuth(false)} />;
+  }
+
+  // Show landing page by default (accessible to farmers)
+  return (
+    <LandingPage 
+      onGetStarted={() => setShowDashboard(true)}
+      onLogin={() => setShowAuth(true)}
+    />
+  );
 };
 
 export default Index;
