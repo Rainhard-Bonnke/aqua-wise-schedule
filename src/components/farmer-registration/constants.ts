@@ -42,6 +42,9 @@ export const cropOptions = [
   "Fodder Crops", "Napier Grass", "Rhodes Grass"
 ];
 
+// Alias for compatibility with CropInfoStep.tsx
+export const crops = cropOptions;
+
 export const irrigationMethods = [
   "Drip Irrigation", "Sprinkler", "Furrow", "Flood", "Manual Watering", 
   "Center Pivot", "Micro-sprinkler", "Subsurface Drip"

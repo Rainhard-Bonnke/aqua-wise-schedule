@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // <-- Add this import
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, User, MapPin, Sprout, CheckCircle } from "lucide-react";
@@ -17,6 +17,7 @@ interface FarmerRegistrationPublicProps {
 
 const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPublicProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate(); // <-- Add this line
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     // Personal Info
@@ -103,6 +104,7 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
     });
     
     onComplete(formData);
+    navigate("/dashboard"); // <-- Redirect to dashboard after registration
   };
 
   const updateFormData = (field: string, value: string) => {
@@ -148,7 +150,10 @@ const FarmerRegistrationPublic = ({ onBack, onComplete }: FarmerRegistrationPubl
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <steps[currentStep - 1].icon className="h-5 w-5 mr-2 text-green-600" />
+              {(() => {
+                const StepIcon = steps[currentStep - 1].icon;
+                return <StepIcon className="h-5 w-5 mr-2 text-green-600" />;
+              })()}
               {steps[currentStep - 1].title}
             </CardTitle>
           </CardHeader>

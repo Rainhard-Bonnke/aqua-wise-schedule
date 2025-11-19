@@ -29,6 +29,12 @@ const SmsSetup = ({ initialPhone }: SmsSetupProps) => {
 
     setIsSendingTest(true);
     try {
+      // Log the payload being sent
+      console.log("Sending SMS payload:", {
+        to: testPhone,
+        message: "Welcome to AquaWise! Your SMS notifications are successfully set up."
+      });
+
       const result = await smsService.sendSms(
         testPhone,
         "Welcome to AquaWise! Your SMS notifications are successfully set up."

@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 
 const corsHeaders = {
@@ -10,9 +9,21 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
-
+ 
   try {
-    const { to, message } = await req.json()
+    // Log the received request body for debugging
+    const body = await req.json();
+    console.log("Received body:", body);
+
+    const { to, message } = body;
+
+    // Validate input
+    if (!to || typeof to !== "string" || !to.trim()) {
+      throw new Error("Missing or invalid 'to' (recipient phone number).")
+    }
+    if (!message || typeof message !== "string" || !message.trim()) {
+      throw new Error("Missing or invalid 'message'.")
+    }
 
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')

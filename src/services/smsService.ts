@@ -5,7 +5,8 @@ class SmsService {
   async sendSms(to: string, message: string): Promise<{ success: boolean; error?: string }> {
     try {
       const { data, error } = await supabase.functions.invoke('send-sms', {
-        body: { to, message },
+        body: { to, message }, // <-- Do NOT stringify
+        headers: { "Content-Type": "application/json" }
       });
 
       if (error) {
@@ -13,7 +14,7 @@ class SmsService {
       }
 
       if (data?.error) {
-         throw new Error(data.error);
+        throw new Error(data.error);
       }
       
       console.log('SMS sent successfully via edge function:', data);

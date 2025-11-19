@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // <-- Add this import
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -18,6 +19,7 @@ interface FarmerRegistrationProps {
 
 const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate(); // <-- Add this line
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FarmerFormData>({
     // Personal Information
@@ -67,7 +69,7 @@ const FarmerRegistration = ({ onBack }: FarmerRegistrationProps) => {
       });
 
       setTimeout(() => {
-        onBack();
+        navigate("/dashboard"); // <-- Redirect to dashboard after registration
       }, 2000);
     } catch (err: any) {
       toast({
