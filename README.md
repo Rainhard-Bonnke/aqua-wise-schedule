@@ -1,73 +1,71 @@
-# Welcome to your Lovable project
+AquaWise Irrigation Management
+Transforming agriculture in Homa Bay County with intelligent water management.
 
-## Project info
+Project Overview
+AquaWise is a web-based intelligent irrigation management system designed to help farmers in Homa Bay County optimize their water usage. By leveraging technology, this platform aims to:
 
-**URL**: https://lovable.dev/projects/4eaa10b4-61b2-4c2a-850b-ef5f84a80409
+Increase Yields: Ensure crops receive the exact amount of water needed.
 
-## How can I edit this code?
+Reduce Costs: Minimize water waste and operational expenses.
 
-There are several ways of editing your application.
+Optimize Resources: Smart tracking and management of irrigation systems.
 
-**Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4eaa10b4-61b2-4c2a-850b-ef5f84a80409) and start prompting.
+Tech Stack
+This project is built with a modern, high-performance web stack suitable for scalable tech solutions:
 
-Changes made via Lovable will be committed automatically to this repo.
+Framework: React (with TypeScript for type safety)
 
-**Use your preferred IDE**
+Build Tool: Vite (Fast development server)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Styling: Tailwind CSS (Utility-first styling)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+UI Components: shadcn-ui (Accessible, professional component library)
 
-Follow these steps:
+Development Guide
+How can I edit this code?
+There are several ways to develop the AquaWise system:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+1. Local Development (Recommended)
+To work locally using your preferred IDE (VS Code, etc.), follow these steps:
+
+Prerequisites:
+
+Node.js & npm installed (install with nvm)
+
+Installation:
+
+Bash
+
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd aqua-wise-schedule
 
-# Step 3: Install the necessary dependencies.
+# Step 3: Install dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+2. GitHub Codespaces
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Navigate to the repository on GitHub.
 
-**Use GitHub Codespaces**
+Click Code -> Codespaces -> New codespace.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Edit directly in the browser-based VS Code environment.
 
-## What technologies are used for this project?
+Deployment
+To deploy the AquaWise platform, you can use services like:
 
-This project is built with:
+Vercel - For seamless React deployment
+Netlify - Alternative hosting platform
+Railway - For full-stack deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Custom Domain
+To connect a custom domain (e.g., aquawise.co.ke), configure DNS settings with your domain provider and deploy through your chosen hosting platform.
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/4eaa10b4-61b2-4c2a-850b-ef5f84a80409) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Author
+Rainhard Bonnke - Tech-focused web development student.
